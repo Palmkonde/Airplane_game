@@ -1,10 +1,23 @@
-""" Interface in game """
+""" modules that cotains All of interface in game """
+
+from typing import Tuple
 
 import pygame
-from typing import Tuple
 
 
 class UserInterface:
+    """Class that work to create UserInterface in game
+    
+    Attributes:
+        screen (pygame.Surface): Surface of pygame
+        title_font: font size 74 use for title
+        menu_font: font size 48 use for menu
+        hud_font: font size 36 use for othertext
+    
+    Medthods:
+        draw_text(): draw a text
+    """
+
     def __init__(self, screen: pygame.Surface) -> None:
         self.__screen = screen
 
@@ -18,7 +31,18 @@ class UserInterface:
                   style: str,
                   text_col: Tuple[int, int, int],
                   pos: Tuple[float | int, float | int]) -> None:
-
+        """draw a text on screen
+        
+        Args:
+            text (str): string that want to draw
+            style (str): choose size of font according to attributes
+            text_col (Tuple[int, int, int]): color of text in rgb
+            pos (Tuple[float | int, float | int]): position of text
+        
+        Returns:
+            None: nothing
+        """
+        font = None
         if style == "menu":
             font = self.__menu_font
         elif style == "title":
@@ -26,5 +50,8 @@ class UserInterface:
         elif style == "hud":
             font = self.__hud_font
 
-        img = font.render(text, True, text_col)
-        self.__screen.blit(img, pos)
+        try:
+            img = font.render(text, True, text_col)
+            self.__screen.blit(img, pos)
+        except Exception as e:
+            print(f"Error to draw Text: {e}")

@@ -1,5 +1,5 @@
 """
-    Python that have only classes
+    Module that contains Airplane class 
     Factory Medthod
 """
 from typing import List, Tuple, Union
@@ -7,7 +7,7 @@ import math
 
 
 class BaseAirplane:
-    """ Some Document here """
+    """ Base Class for Airplane and Missiles """
 
     def __init__(self,
                  size: int,
@@ -35,11 +35,17 @@ class BaseAirplane:
         self._speed = speed
         self._is_alive = True
 
-    def rotation_points(self, angle: float) -> None:
-        """ rotate points of airplnae from input angle """
+    def rotation_points(self, angle: int | float) -> None:
+        """rotate points of airplnae from input angle 
 
-        assert isinstance(angle, float), \
-            f"angle should be float, but got {type(angle)}"
+        Args:
+            angle (int | float): angle that wants Object to rotate in degrees
+        Returns:
+            None: This function is rotating an Object 
+        """
+
+        assert isinstance(angle, (float, int)), \
+            f"angle should be float or int, but got {type(angle)}"
 
         cx, cy = self.get_center()
         all_points = self.get_points()
@@ -72,8 +78,13 @@ class BaseAirplane:
         self._point = new_points
 
     def bouncing_box(self) -> Tuple[float, float, float, float]:
-        """
-            Get the (Axis-Aligned Bounding Box) for object
+        """Get the (Axis-Aligned Bounding Box) for object
+
+        Returns:
+            Points (Tuple[float, float, float, float]): Bounding Box of an Object 
+                                                        using for colliding detection
+                                                        it contains min_x, max_x, min_y, max_y
+                                                        respectively
         """
 
         points = self.get_points()
@@ -86,7 +97,15 @@ class BaseAirplane:
         return min_x, max_x, min_y, max_y
 
     def is_colliding(self, other: Union["Airplane", "Missile"]) -> bool:
-        """ check is colision """
+        """check is colision 
+
+        Args:
+            other (Airplane | Missile): Other Object to check that it collide 
+                                        with `this` object or not
+
+        Returns:
+            bool: return `True` when it is collide and `False` when it doesn't
+        """
         min_x1, max_x1, min_y1, max_y1 = self.bouncing_box()
         min_x2, max_x2, min_y2, max_y2 = other.bouncing_box()
 
@@ -98,27 +117,66 @@ class BaseAirplane:
         return True
 
     # Acess data part
+    def set_is_alive(self, state: bool) -> None:
+        """set is alive of this object
+
+        Args:
+            state (bool): `True` or `False`
+
+        Returns:
+            None: nothing
+        """
+        self._is_alive = state
+
     def get_points(self) -> List[Tuple[float, float]]:
+        """ Return point of object
+
+        Returns:
+            List[Tuple[float,float]]: list of points of this object
+        """
         return self._point
 
     def get_vector(self) -> List[float]:
+        """Return vector of obeject
+
+        Calculate vector of object
+
+        Returns:
+            List[float]: Reuturn vector of object such that tail is at center 
+                         and nose is at top of this object
+        """
         cx, cy = self._center
         nose_x, nose_y = self._point[0]
         v_center_nose = [nose_x - cx, nose_y - cy]
         return v_center_nose
 
     def get_center(self) -> Tuple[float, float]:
+        """Get center of an object
+
+        Returns:
+            Tuple(float, float): center of Object
+        """
         return self._center
 
     def get_speed(self) -> float:
+        """Get speed of an object
+
+        Returns:
+            float: speed of Object
+        """
         return self._speed
-    
+
     def get_alive(self) -> bool:
+        """Check that Object is still alive or not
+
+        Returns:
+            bool: `True` when it still alive `False` when it doesn't
+        """
         return self._is_alive
 
 
 class Airplane(BaseAirplane):
-    """ Some document here """
+    """ Class Airplane inherit from BaseAirplane use of main player character """
 
     def __init__(self,
                  size: int,
@@ -127,13 +185,19 @@ class Airplane(BaseAirplane):
         super().__init__(size=size, center=center, speed=speed)
 
     def move_forward(self) -> None:
-        """ Move this plane forward the top nose of it """
+        """ Move this plane forward the top nose of it 
 
+        Returns:
+            None: Moving an object forward that nose it to
+        """
+
+        # Get nessary Data
         cx, cy = self.get_center()
         v_center_nose = self.get_vector()
         speed = self.get_speed()
         all_points = self.get_points()
 
+        # List of new points
         new_points = []
 
         # Calculate what direction of this vector and update it
@@ -152,22 +216,32 @@ class Airplane(BaseAirplane):
 
 
 class Missile(BaseAirplane):
-    """ Some Document here """
+    """ Missile inherit from BaseAirplane use for object that has target to Airplane """
 
     def __init__(self,
                  size: int,
                  center: Tuple[float, float],
                  speed: float,
+                 max_turn_rate: float,
                  acceleration: float = 0.01,
                  max_speed: float = 0.3) -> None:
 
         super().__init__(size=size, center=center, speed=speed)
         self.__acceleration = acceleration
         self.__max_speed = max_speed
+        self.__max_turn_rate = max_turn_rate
 
     def update(self, dt: float) -> None:
-        """
-            Update point with acceleration and delta time
+        """Update point with acceleration and delta time
+
+        Update all points and speed with acceleration 
+        and limit speed by max_speed
+
+        Args:
+            dt (float): delatime from pygame
+
+        Returns:
+            None: Update all Point
         """
 
         v_missile = self.get_vector()
@@ -203,14 +277,19 @@ class Missile(BaseAirplane):
         self._point = new_points
 
     def rotation_to_target(self, target: Airplane) -> None:
-        """
-            Medthod that rotate to target
+        """Rotate face to target
+
+        Args:
+            target (Airplane): Object that wants missile to rotate to
+
+        Returns:
+            None: Just rotating all points
         """
 
         v_missile = self.get_vector()
-        speed = self.get_speed()
         center_missile = self.get_center()
         center_target = target.get_center()
+        max_turn_rate = math.radians(self.get_max_turn_rate())
 
         # convert to vector
         v_m1_t = [center_target[0] - center_missile[0],
@@ -221,26 +300,37 @@ class Missile(BaseAirplane):
 
         diff_angle = target_angle - missile_angle
 
-        # Adjust turn rate based on speed (higher speed, slower turning)
-        # TODO: Do something better
-        current_speed = max(self.get_speed(), 0.1)
-        # turn_rate = 9.81 * (0.032) / current_speed
-        # turn_rate *= 0.20
-
         if diff_angle > math.pi:
             diff_angle -= 2 * math.pi
         elif diff_angle < -math.pi:
             diff_angle += 2 * math.pi
 
-        # if abs(diff_angle) > turn_rate:
-        #     diff_angle = turn_rate * (1 if diff_angle > 0 else -1)
+        if abs(diff_angle) > max_turn_rate:
+            diff_angle = max_turn_rate if diff_angle > 0 else -max_turn_rate
 
         self.rotation_points(math.degrees(diff_angle))
 
     # Acess data
     def get_acceleration(self) -> float:
+        """Get acceleration of this object
+
+        Returns:
+            float: acceleration of this object
+        """
         return self.__acceleration
 
     def get_max_speed(self) -> float:
+        """Get max speed of this object
+
+        Returns:
+            float: max_speed of this object
+        """
         return self.__max_speed
 
+    def get_max_turn_rate(self) -> float:
+        """Get max_turn_rate
+
+        Returns:
+            float: max_turn_rate of this object
+        """
+        return self.__max_turn_rate
