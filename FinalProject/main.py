@@ -8,22 +8,11 @@ import os
 from typing import List
 from baseairplane import Airplane, Missile
 from interface import UserInterface
-from coin import NormalCoin, Coin, InvincibleCoin, DeleteAllMissileCoin
+from coin import Coin, CoinFactory
 
 """
 TODO List
     - *Adjust speed and turn_rate for both missiles and airplane
-    - reset
-    - Optimize
-
-    - Some objects to boost or increase score
-                    immortal for seconds
-
-    Important
-        - add at least one decorator
-            - Special Coin that can immortal and increase score
-
-        - Look other design pattern
 """
 
 
@@ -78,6 +67,9 @@ class Game:
         self.missiles = []
         self.player = None
         self.coin = []
+
+        # Factory
+        self.coin_factory = CoinFactory()
 
         # State
         self.last_spawn_misslie = 0
@@ -331,7 +323,7 @@ class Game:
     def spawn_coin(self) -> None:
         current_time = pygame.time.get_ticks() / 1000  # Convert ms to s
 
-        all_type = [NormalCoin, InvincibleCoin, DeleteAllMissileCoin]
+        all_type = ["normal", "invincible", "delete_missile"]
         weight = [0.6, 0.3, 0.1]
 
         # TODO: score and radius and random type of Coin
@@ -342,15 +334,16 @@ class Game:
                 (self.SCREEN_WIDTH - 10, self.SCREEN_HEIGHT - 10)
             )
 
-            rand_obj = random.choice(all_type)
+            rand_type = random.choices(all_type, weights=weight, k=1)[0]
             rand_x = random.randint(spawn_area[0][0], spawn_area[1][0])
             rand_y = random.randint(spawn_area[0][1], spawn_area[1][1])
 
-            self.coin.append(rand_obj(
-                center=(rand_x, rand_y),
-                score=self.COIN_SCORE,
-                radius=self.COIN_RADIUS
-            ))
+            new_coin = self.coin_factory.create_coin(coin_type=rand_type,
+                                                     center=(rand_x, rand_y),
+                                                     score=self.COIN_SCORE,
+                                                     radius=self.COIN_RADIUS)
+
+            self.coin.append(new_coin)
             self.last_spawn_coin = current_time
 
     def save_high_score(self) -> None:

@@ -81,5 +81,22 @@ class DeleteAllMissileCoin(Coin, InterfaceCoin):
         return self.RED
 
 
+class CoinFactory:
+    def create_coin(self, coin_type: str, center: Tuple[int, int], score: int, radius: int) -> Coin:
+        """
+        Factory method to create different types of coins.
+        """
+        coin_types = {
+            'normal': NormalCoin,
+            'invincible': InvincibleCoin,
+            'delete_missile': DeleteAllMissileCoin
+        }
+
+        if coin_type not in coin_types:
+            raise ValueError(f"Invalid coin type: {coin_type}")
+
+        return coin_types[coin_type](center, score, radius)
+
+
 # c = Coin((0, 0), 0, 0)
 # d = NormalCoin((0, 0), 0, 0)
