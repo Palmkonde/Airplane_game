@@ -19,6 +19,10 @@ class UserInterface:
     """
 
     def __init__(self, screen: pygame.Surface) -> None:
+        
+        assert isinstance(screen, pygame.Surface), \
+            f"screen should be pygame.Surface, but got {type(screen)}"
+
         self.__screen = screen
 
         pygame.font.init()
@@ -42,6 +46,16 @@ class UserInterface:
         Returns:
             None: nothing
         """
+        assert isinstance(text, str), f"text should be str, but got {type(text)}"
+
+        assert isinstance(style, str) and style in ["menu", "title", "hud"], \
+            f"style should be str and Must be menu, titile or hud"
+
+        assert isinstance(text_col, tuple) and \
+                len(text_col) == 3 and \
+                all(isinstance(c, int) for c in text_col), \
+                    f"text_col should be Tuple[int, int, int], but got {type(text_col)}"
+
         font = None
         if style == "menu":
             font = self.__menu_font

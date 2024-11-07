@@ -42,6 +42,17 @@ class Coin():
                  center: Tuple[int | float, int | float],
                  score: int,
                  radius: int | float) -> None:
+        assert isinstance(center, tuple) \
+                and len(center) == 2 \
+                and all(isinstance(c, (int, float)) for c in center), \
+                    f"center should be Tuple[int|float, int|float], but got {type(center)}"
+        
+        assert isinstance(score, int), \
+            f"score should be int, but got {type(score)}"
+
+        assert isinstance(radius, (int, float)), \
+            f"radius should be int or float, but got {tpye(radius)}"
+
         self.__center = center
         self.__score = score
         self.__radius = radius
@@ -55,6 +66,10 @@ class Coin():
         Returns:
             bool: `True` if it is collding `False` if it doesn't
         """
+        assert isinstance(other, Airplane), \
+            f"other should be Airplane, but got {type(other)}"
+
+        # Calculate that distance of objects center is in radius
         distance = math.dist(self.get_center(), other.get_center())
         return distance < (self.get_radius())
 
@@ -214,6 +229,14 @@ class CoinFactory:
         Returns:
             Coin: Object that create from this factory
         """
+        assert isinstance(coin_type, str), \
+            f"coin_type should be str, but got {type(coin_type)}"
+
+        assert isinstance(center, tuple) \
+                and len(center) == 2 \
+                and all(isinstance(c, int) for c in center), \
+                    f"center should be Tuple[int, int], but got {type(center)}"
+
         coin_types = {
             'normal': NormalCoin,
             'invincible': InvincibleCoin,

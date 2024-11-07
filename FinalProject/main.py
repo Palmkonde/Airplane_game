@@ -67,8 +67,8 @@ class Game:
     DISPLAY_SIZE = (SCREEN_WIDTH, SCREEN_HEIGHT)
 
     # Missile generation constant
-    MISSILE_SPAWN_TIME = 5  # Seconds between spawns
-    MAX_MISSILES = 3
+    MISSILE_SPAWN_TIME = 4  # Seconds between spawns
+    MAX_MISSILES = 4
     SPAWN_POSITION = [
         (0, 0),
         (SCREEN_WIDTH, 0),
@@ -91,7 +91,7 @@ class Game:
     MISSILE_SPEED = 5
     MISSILE_ACCELERATION = 0.2
     MISSILE_MAX_SPEED = 6.5
-    MISSLIE_MAX_TURN_RATE = 5  # degrees
+    MISSLIE_MAX_TURN_RATE = 3.5  # degrees
 
     # Constant for Coin
     COIN_SPAWN_TIME = 4
@@ -132,6 +132,9 @@ class Game:
         Args:
             player (Airplane): The airplane object representing the player
         """
+        assert isinstance(player, Airplane), \
+            f"player should be Airplane, but got {type(player)}"
+
         self.player = player
 
     def set_missiles(self, missiles: List[Missile]) -> None:
@@ -141,18 +144,26 @@ class Game:
         Args:
             missiles (List[Missile]): A list of Missile objects in the game.
         """
+        assert isinstance(missiles, list) and \
+            all(isinstance(m, Missile) for m in missiles), \
+            f"missiles should be List[Missile], but got {type(missiles)}"
         self.missiles = missiles
 
-    def set_coin(self, coin: List[Coin]) -> None:
+    def set_coin(self, coins: List[Coin]) -> None:
         """Sets the list of coins in the game.
 
         Args:
             coin (List[Coin]): A list of Coin objects in the game.
         """
-        self.coin = coin
+        assert isinstance(coins, list) and \
+            all(isinstance(c, Coin) for c in coins), \
+            f"Coin should be List[Coin], but got {type(coins)}"
+        self.coin = coins
 
     def run_main(self) -> None:
         """Run main game loop"""
+
+        # Load Latest high_score
         self.load_high_score()
 
         while self.running:
@@ -161,27 +172,40 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.running = False
 
+            # get different in frame
             dt = self.clock.tick(60) / 1000.0  # 60 FPS
 
             self.screen.fill(self.WHITE)
+
+            # get key from player
             key = pygame.key.get_pressed()
 
+            # if player died always change state to died
+            if not self.player.get_alive():
+                self.state = "died"
+
+            # State menu
             if self.state == "menu":
 
+                # draw text
                 self.ui.draw_text("Airplane", "title", self.BLACK,
                                   (self.SCREEN_WIDTH/2 - 100, self.SCREEN_HEIGHT/5))
 
                 self.ui.draw_text("Press P to start", "menu", self.BLACK,
                                   (self.SCREEN_WIDTH/2 - 125, self.SCREEN_HEIGHT/2 + 100))
 
+                # When player press P and change to new state
                 if key[pygame.K_p]:
                     self.state = "playing"
 
-                    # set new time
+                    # set time
                     self.last_spawn_missile = pygame.time.get_ticks() / 1000
                     self.last_spawn_coin = pygame.time.get_ticks() / 1000
 
+            # playing state
             elif self.state == "playing":
+
+                # chceck input whether a or d
                 if key[pygame.K_d]:
                     self.player.rotation_points(self.AIRPLANE_ROTATION_ANGLE)
                 elif key[pygame.K_a]:
@@ -190,6 +214,7 @@ class Game:
                 self.ui.draw_text(f"score: {self.score}", "hud", self.BLACK,
                                   (0, 0))
 
+                # update all of object in game
                 self.spwan_missiles()
                 self.spawn_coin()
                 self.update_positions(dt)
@@ -197,7 +222,10 @@ class Game:
                 self.increase_score_misslie()
                 self.draw()
 
+            # State Died
             elif self.state == "died":
+
+                # Draw texts
                 self.ui.draw_text("You died!", "title", self.RED,
                                   (self.SCREEN_WIDTH/2 - 125, 100))
 
@@ -212,15 +240,14 @@ class Game:
 
                 self.high_score = max(self.high_score, self.score - 1)
 
+                # Check player preesed R
                 if key[pygame.K_r]:
                     self.reset()
-
-            if not self.player.get_alive():
-                self.state = "died"
 
             # Update display
             pygame.display.update()
 
+        # Save_score before quit
         self.save_high_score()
         pygame.quit()
 
@@ -249,13 +276,16 @@ class Game:
         Args:
             dt (float): The delta time (in seconds) since the last frame update.
         """
+        assert isinstance(dt, float), f"dt should be float, but got {type(dt)}"
 
-        # Handling error
+        # cannot find object player
         if not self.player:
             return
 
+        # Player need no argument
         self.player.move_forward()
 
+        # Update every missiles need dt for acceleration
         for m in self.missiles:
             try:
                 m.rotation_to_target(self.player)
@@ -316,7 +346,10 @@ class Game:
         if not self.player:
             return
 
+        # Checking for missiles collding to player
         for m in self.missiles:
+
+            # Player is invincing. So, missiles can go through player
             if self.player_effect == "invincible":
                 self.reset_effect_time()
                 continue
@@ -325,17 +358,22 @@ class Game:
                 self.player.set_is_alive(False)
                 m.set_is_alive(False)
 
+        # Checking for missile collding to themself
         for i in range(len(self.missiles)):
             for j in range(i+1, len(self.missiles)):
                 if self.missiles[i].is_colliding(self.missiles[j]):
                     self.missiles[i].set_is_alive(False)
                     self.missiles[j].set_is_alive(False)
 
+        # Checking that coin collding to player
+        # We can't check player.is_collding(coin)
+        # Because Coin is circle and bound box is different from Airplane
         for c in self.coin:
             if c.is_colliding(self.player):
                 c.set_is_collected(True)
                 self.score += c.get_score()
 
+                # Check that coin is not a normal coin
                 if hasattr(c, "get_effect"):
                     effect = c.get_effect()
 
@@ -346,6 +384,7 @@ class Game:
                     elif effect == "BOOM":
                         self.set_missiles([])
 
+        # Update current missiles and coin
         self.missiles = [m for m in self.missiles if m.get_alive()]
         self.coin = [c for c in self.coin if not c.get_collected()]
 
@@ -371,6 +410,7 @@ class Game:
                 )
                 self.missiles.append(new_missile)
 
+            # Update number of new_missies and last_spawn time
             self.last_num = num_new_missiles
             self.last_spawn_missile = current_time
 
@@ -378,6 +418,8 @@ class Game:
         """Increases the score based on changes in the missile count"""
         current_num = len(self.missiles)
 
+        # Because we have case that missiles run out of fuel
+        # So we have to check that number of current missiles is different from last time
         if current_num < self.last_num:
             self.score += self.last_num - len(self.missiles)
             self.last_num = current_num
@@ -390,21 +432,26 @@ class Game:
         weight = [0.6, 0.3, 0.1]
 
         if current_time - self.last_spawn_coin >= self.COIN_SPAWN_TIME:
-
+            
             spawn_area = (
                 (50, 50),
                 (self.SCREEN_WIDTH - 50, self.SCREEN_HEIGHT - 50)
             )
 
+            # random, (x,y)
+            # random type get only one choices with rate
+            # k means we want only one sample and choices return in List
             rand_type = random.choices(all_type, weights=weight, k=1)[0]
             rand_x = random.randint(spawn_area[0][0], spawn_area[1][0])
             rand_y = random.randint(spawn_area[0][1], spawn_area[1][1])
 
+            # Use Factory pattern to create differnet type of coin
             new_coin = self.coin_factory.create_coin(coin_type=rand_type,
                                                      center=(rand_x, rand_y),
                                                      score=self.COIN_SCORE,
                                                      radius=self.COIN_RADIUS)
 
+            # Update
             self.coin.append(new_coin)
             self.last_spawn_coin = current_time
 

@@ -11,8 +11,18 @@ class BaseAirplane:
 
     def __init__(self,
                  size: int,
-                 center: Tuple[float, float],
-                 speed: float) -> None:
+                 center: Tuple[int | float, int | float],
+                 speed: int | float) -> None:
+
+        assert isinstance(size, int), \
+            f"size should be int, but got {type(size)}"
+
+        assert isinstance(center, tuple) and len(center) == 2 and \
+            all(isinstance(c, (int, float)) for c in center), \
+            f"center should be Tuple[float, float], but got {type(center)}"
+
+        assert isinstance(speed, (int, float)), \
+            f"speed should be int or float, but got {type(speed)}"
 
         self._size = size
         self._center = center
@@ -44,15 +54,17 @@ class BaseAirplane:
             None: This function is rotating an Object 
         """
 
-        assert isinstance(angle, (float, int)), \
+        assert isinstance(angle, (int, float)), \
             f"angle should be float or int, but got {type(angle)}"
 
+        # get all data
         cx, cy = self.get_center()
         all_points = self.get_points()
-
-        theta_1 = math.radians(angle)
         new_points = []
 
+        # Change theta_1 to radians
+        # and intialize rotate matrix
+        theta_1 = math.radians(angle)
         rotate_matrix = [
             [math.cos(theta_1), -math.sin(theta_1)],
             [math.sin(theta_1), math.cos(theta_1)]
@@ -63,7 +75,7 @@ class BaseAirplane:
             v_center_xy = [x - cx, y - cy]
             new_xy = []
 
-            # Matrix multiplication
+            # rotate all points by Matrix multiplication
             for i in range(2):
                 res = 0
                 for j in range(2):
@@ -86,7 +98,6 @@ class BaseAirplane:
                                                         it contains min_x, max_x, min_y, max_y
                                                         respectively
         """
-
         points = self.get_points()
 
         min_x = min(map(lambda x: x[0], points))
@@ -109,6 +120,7 @@ class BaseAirplane:
         min_x1, max_x1, min_y1, max_y1 = self.bouncing_box()
         min_x2, max_x2, min_y2, max_y2 = other.bouncing_box()
 
+        # Check that is it intercept each other or not
         if max_x1 < min_x2 or max_x2 < min_x1:
             return False
         if max_y1 < min_y2 or max_y2 < min_y1:
@@ -180,8 +192,8 @@ class Airplane(BaseAirplane):
 
     def __init__(self,
                  size: int,
-                 center: Tuple[float, float],
-                 speed: float) -> None:
+                 center: Tuple[int | float, int | float],
+                 speed: int | float) -> None:
         super().__init__(size=size, center=center, speed=speed)
 
     def move_forward(self) -> None:
@@ -201,6 +213,11 @@ class Airplane(BaseAirplane):
         new_points = []
 
         # Calculate what direction of this vector and update it
+        # calculating angle of vector using arctan(y/x)
+        # and updating form formula
+        # angle is in raidus
+        #   x = rcos(angle)
+        #   y = rsin(angle)
         angle = math.atan2(v_center_nose[1], v_center_nose[0])
         move_x = speed * math.cos(angle)
         move_y = speed * math.sin(angle)
@@ -221,17 +238,28 @@ class Missile(BaseAirplane):
     def __init__(self,
                  size: int,
                  center: Tuple[float, float],
-                 speed: float,
-                 max_turn_rate: float,
-                 acceleration: float = 0.01,
-                 max_speed: float = 0.3) -> None:
+                 speed: int | float,
+                 max_turn_rate: int | float,
+                 acceleration: int | float = 0.01,
+                 max_speed: int | float = 0.3) -> None:
+
+        assert isinstance(acceleration, (int, float)), \
+            f"acceleration should be int or float, but got {
+                type(acceleration)}"
+
+        assert isinstance(max_turn_rate, (int, float)), \
+            f"max_turn_rate should be int or float, but got {
+                type(max_turn_rate)}"
+
+        assert isinstance(max_speed, (int, float)), \
+            f"max_speed should be int or float, but got {type(max_speed)}"
 
         super().__init__(size=size, center=center, speed=speed)
         self.__acceleration = acceleration
         self.__max_speed = max_speed
         self.__max_turn_rate = max_turn_rate
 
-    def update(self, dt: float) -> None:
+    def update(self, dt: int | float) -> None:
         """Update point with acceleration and delta time
 
         Update all points and speed with acceleration 
@@ -244,6 +272,10 @@ class Missile(BaseAirplane):
             None: Update all Point
         """
 
+        assert isinstance(dt, (int, float)), \
+            f"dt should be int or float, but got {type(dt)}"
+
+        # get data
         v_missile = self.get_vector()
         acceleration = self.get_acceleration()
         current_speed = self.get_speed()
@@ -252,18 +284,24 @@ class Missile(BaseAirplane):
         all_points = self.get_points()
         new_points = []
 
+        # Check that speed is equal to max_speed that means missiles
+        # Out of fuel
         if current_speed == max_speed:
             self._is_alive = False
 
+        # Calculate angle of missiles from vector
         missile_angle = math.atan2(v_missile[1], v_missile[0])
 
         # Calculate new speed + accelerate
         self._speed += acceleration * dt
 
         new_speed = self.get_speed()
+
+        # set speed that can maximum to max_speed
         self._speed = min(new_speed, max_speed)
 
         # find delta_x, delta_y
+        # How many that x and y should move
         move_x = new_speed * math.cos(missile_angle)
         move_y = new_speed * math.sin(missile_angle)
 
@@ -286,6 +324,10 @@ class Missile(BaseAirplane):
             None: Just rotating all points
         """
 
+        assert isinstance(target, Airplane), \
+            f"target should be Airplane, but got {type(target)}"
+
+        # Get all data
         v_missile = self.get_vector()
         center_missile = self.get_center()
         center_target = target.get_center()
@@ -295,16 +337,27 @@ class Missile(BaseAirplane):
         v_m1_t = [center_target[0] - center_missile[0],
                   center_target[1] - center_missile[1]]
 
+        # get angle of vector of missile and target
         missile_angle = math.atan2(v_missile[1], v_missile[0])
         target_angle = math.atan2(v_m1_t[1], v_m1_t[0])
 
+        # find how different between missile and target
         diff_angle = target_angle - missile_angle
 
+        # ensure that diff_angle is in range [-pi, pi]
+        # Because I don't want it to backfilp or turn around in circle
+        # And it is a shortest rotation
+        # for example
+        # missile angle: -3pi/4
+        # target angle: pi/2
+        # diff_angle: 5pi/4
+        # 5pi/4 > pi, 5pi/4 - 2pi = -3pi/4
         if diff_angle > math.pi:
             diff_angle -= 2 * math.pi
         elif diff_angle < -math.pi:
             diff_angle += 2 * math.pi
 
+        # Check that diff_angle should not more that max_turn_rate
         if abs(diff_angle) > max_turn_rate:
             diff_angle = max_turn_rate if diff_angle > 0 else -max_turn_rate
 
