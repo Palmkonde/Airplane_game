@@ -24,7 +24,8 @@ class Coin():
     """Main class that is a blueprint of many styles coin
 
     Attributes:
-        center (Tuple[int | float, int | float]): The center position of the coin on the game map.
+        center (Tuple[int | float, int | float]): The center position 
+                                                  of the coin on the game map.
         score (int): The score value the coin provides when collected.
         radius (int | float): The radius of the coin, used for collision detection.
         _is_collected (bool): Whether the coin has been collected by the player.

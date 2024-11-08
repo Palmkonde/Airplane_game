@@ -7,19 +7,19 @@ import pygame
 
 class UserInterface:
     """Class that work to create UserInterface in game
-    
+
     Attributes:
         screen (pygame.Surface): Surface of pygame
         title_font: font size 74 use for title
         menu_font: font size 48 use for menu
         hud_font: font size 36 use for othertext
-    
+
     Medthods:
         draw_text(): draw a text
     """
 
     def __init__(self, screen: pygame.Surface) -> None:
-        
+
         assert isinstance(screen, pygame.Surface), \
             f"screen should be pygame.Surface, but got {type(screen)}"
 
@@ -36,25 +36,27 @@ class UserInterface:
                   text_col: Tuple[int, int, int],
                   pos: Tuple[float | int, float | int]) -> None:
         """draw a text on screen
-        
+
         Args:
             text (str): string that want to draw
             style (str): choose size of font according to attributes
             text_col (Tuple[int, int, int]): color of text in rgb
             pos (Tuple[float | int, float | int]): position of text
-        
+
         Returns:
             None: nothing
         """
-        assert isinstance(text, str), f"text should be str, but got {type(text)}"
+        assert isinstance(text, str), f"text should be str, but got {
+            type(text)}"
 
         assert isinstance(style, str) and style in ["menu", "title", "hud"], \
-            f"style should be str and Must be menu, titile or hud"
+            f"style should be str and Must be menu, titile or hud, but got {type(style)}"
 
         assert isinstance(text_col, tuple) and \
-                len(text_col) == 3 and \
-                all(isinstance(c, int) for c in text_col), \
-                    f"text_col should be Tuple[int, int, int], but got {type(text_col)}"
+            len(text_col) == 3 and \
+            all(isinstance(c, int) for c in text_col), \
+            f"text_col should be Tuple[int, int, int], but got {
+                type(text_col)}"
 
         font = None
         if style == "menu":

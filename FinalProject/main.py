@@ -1,6 +1,4 @@
-"""Final project -> intro_to_python 2 
-
-"""
+"""Final project -> intro_to_python 2"""
 
 import random
 import json
@@ -14,44 +12,89 @@ from coin import Coin, CoinFactory
 
 
 class Game:
-    """The Game is the main loop of game. it contains a lot of logical of this game behind of it
+    """The Game is the main loop of game. it contains a lot of logical of 
+    this game behind of it
 
     Attributes:
         WHITE, BLUE, RED, BLACK, YELLOW (tuple): Color constants for drawing.
+
         SCREEN_WIDTH (int): Width of the game screen.
+
         SCREEN_HEIGHT (int): Height of the game screen.
+
         DISPLAY_SIZE (tuple): Screen dimensions as a tuple of width and height.
-        MISSILE_SPAWN_TIME (int): Time interval (in seconds) between missile spawns.
+
+        MISSILE_SPAWN_TIME (int): Time interval (in seconds) 
+                                  between missile spawns.
+
         MAX_MISSILES (int): Maximum number of missiles allowed on screen.
-        SPAWN_POSITION (list of tuples): Predefined missile spawn positions around the screen.
+
+        SPAWN_POSITION (list of tuples): Predefined missile spawn positions 
+                                         around the screen.
+
         AIRPLANE_SIZE (int): Size of the player's airplane.
+
         AIRPLANE_SPEED (int): Speed of the airplane.
-        AIRPLANE_ROTATION_ANGLE (int): Angle (in degrees) the airplane rotates per input.
-        AIRPLANE_EFFECT_TIME (int): Duration for which temporary effects last on the airplane.
+
+        AIRPLANE_ROTATION_ANGLE (int): Angle (in degrees) the airplane 
+                                       rotates per input.
+
+        AIRPLANE_EFFECT_TIME (int): Duration for which temporary 
+                                    effects last on the airplane.
+
         MISSILE_SIZE (int): Size of each missile.
+
         MISSILE_SPEED (int): Starting speed of missiles.
+
         MISSILE_ACCELERATION (float): Rate at which missile speed increases.
+
         MISSILE_MAX_SPEED (float): Maximum speed a missile can achieve.
-        MISSLIE_MAX_TURN_RATE (int): Maximum rate (in degrees) at which a missile can turn.
+
+        MISSLIE_MAX_TURN_RATE (int): Maximum rate (in degrees) 
+                                     at which a missile can turn.
+
         COIN_SPAWN_TIME (int): Time interval (in seconds) between coin spawns.
+
         COIN_SCORE (int): Score increment for collecting a coin.
+
         COIN_RADIUS (int): Radius of each coin.
 
     Methods:
         set_player(player): Sets the player (Airplane) object.
+
         set_missiles(missiles): Sets the list of missiles in the game.
+
         set_coin(coin): Sets the list of coins in the game.
-        run_main(): Runs the main game loop, updating the screen and handling inputs.
-        reset(): Resets the game state after the player dies, preparing for a new session.
-        update_positions(dt): Updates the positions of player and missiles based on elapsed time.
+
+        run_main(): Runs the main game loop, updating the screen 
+                    and handling inputs.
+
+        reset(): Resets the game state after the player dies, 
+                 preparing for a new session.
+
+        update_positions(dt): Updates the positions of player and missiles 
+                              based on elapsed time.
+
         draw(): Draws the player, missiles, and coins onto the screen.
-        check_collision(): Checks for collisions between the player, missiles, and coins.
-        spwan_missiles(): Spawns new missiles at random positions if the spawn interval has passed.
-        increase_score_misslie(): Increases the score based on missile count changes.
-        spawn_coin(): Spawns a coin of a random type at a random position if the spawn interval has passed.
+
+        check_collision(): Checks for collisions between the player, 
+                           missiles, and coins.
+
+        spwan_missiles(): Spawns new missiles at random positions 
+                          if the spawn interval has passed.
+
+        increase_score_misslie(): Increases the score based on 
+                                  missile count changes.
+
+        spawn_coin(): Spawns a coin of a random type at a random position 
+                      if the spawn interval has passed.
+
         save_high_score(): Saves the current high score to a JSON file.
+
         load_high_score(): Loads the high score from a JSON file.
-        reset_effect_time(): Resets temporary player effects if the effect duration has ended.
+
+        reset_effect_time(): Resets temporary player effects 
+                             if the effect duration has ended.
     """
 
     # Color
@@ -74,8 +117,8 @@ class Game:
 
     # Constant for Missile
     MISSILE_SIZE = 5
-    MISSILE_SPEED = 5
-    MISSILE_ACCELERATION = 0.2
+    MISSILE_SPEED = 6
+    MISSILE_ACCELERATION = 0.1
     MISSILE_MAX_SPEED = 6.5
     MISSLIE_MAX_TURN_RATE = 3.5  # degrees per second
 
@@ -85,7 +128,7 @@ class Game:
     COIN_RADIUS = 15
 
     # Missile generation constant
-    MISSILE_SPAWN_TIME = 4  # Seconds between spawns
+    MISSILE_SPAWN_TIME = 3.5  # Seconds between spawns
     MAX_MISSILES = 4
     SPAWN_POSITION = [
         (0, 0),
@@ -188,10 +231,14 @@ class Game:
             if self.state == "menu":
 
                 # draw text
-                self.ui.draw_text("Airplane", "title", self.BLACK,
+                self.ui.draw_text("Airplane",
+                                  "title",
+                                  self.BLACK,
                                   (self.SCREEN_WIDTH/2 - 100, self.SCREEN_HEIGHT/5))
 
-                self.ui.draw_text("Press P to start", "menu", self.BLACK,
+                self.ui.draw_text("Press P to start",
+                                  "menu",
+                                  self.BLACK,
                                   (self.SCREEN_WIDTH/2 - 125, self.SCREEN_HEIGHT/2 + 100))
 
                 # When player press P and change to new state
@@ -211,7 +258,9 @@ class Game:
                 elif key[pygame.K_a]:
                     self.player.rotation_points(-self.AIRPLANE_ROTATION_ANGLE)
 
-                self.ui.draw_text(f"score: {self.score}", "hud", self.BLACK,
+                self.ui.draw_text(f"score: {self.score}",
+                                  "hud",
+                                  self.BLACK,
                                   (0, 0))
 
                 # update all of object in game
@@ -229,16 +278,22 @@ class Game:
                 self.ui.draw_text("You died!", "title", self.RED,
                                   (self.SCREEN_WIDTH/2 - 125, 100))
 
-                self.ui.draw_text(f"Your score is: {self.score - 1}", "hud", self.BLACK,
+                self.ui.draw_text(f"Your score is: {max(self.score - 1, 0)}",
+                                  "hud",
+                                  self.BLACK,
                                   (self.SCREEN_WIDTH/2 - 100, self.SCREEN_HEIGHT/2))
 
-                self.ui.draw_text(f"Your high score is: {self.high_score}", "hud", self.BLACK,
+                self.ui.draw_text(f"Your high score is: {self.high_score}",
+                                  "hud",
+                                  self.BLACK,
                                   (self.SCREEN_WIDTH/2 - 125, self.SCREEN_HEIGHT/2 + 50))
 
-                self.ui.draw_text("Press R to restart", "hud", self.BLACK,
+                self.ui.draw_text("Press R to restart",
+                                  "hud",
+                                  self.BLACK,
                                   (self.SCREEN_WIDTH/2 - 100, self.SCREEN_HEIGHT/2 + 100))
 
-                self.high_score = max(self.high_score, self.score - 1)
+                self.high_score = max(self.high_score, self.score, 0)
 
                 # Check player preesed R
                 if key[pygame.K_r]:
@@ -354,7 +409,7 @@ class Game:
                 self.reset_effect_time()
                 continue
 
-            elif self.player.is_colliding(m):
+            if self.player.is_colliding(m):
                 self.player.set_is_alive(False)
                 m.set_is_alive(False)
 
@@ -396,8 +451,8 @@ class Game:
 
             num_new_missiles = random.randint(2, self.MAX_MISSILES)
 
-            spawn_postions = random.sample(
-                self.SPAWN_POSITION, num_new_missiles)
+            spawn_postions = random.sample(self.SPAWN_POSITION,
+                                           num_new_missiles)
 
             for pos in spawn_postions:
                 new_missile = Missile(
@@ -419,7 +474,8 @@ class Game:
         current_num = len(self.missiles)
 
         # Because we have case that missiles run out of fuel
-        # So we have to check that number of current missiles is different from last time
+        # So we have to check that number of
+        # current missiles is different from last time
         if current_num < self.last_num:
             self.score += self.last_num - len(self.missiles)
             self.last_num = current_num

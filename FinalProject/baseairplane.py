@@ -13,7 +13,8 @@ class BaseAirplane:
         size (int): size of an object
         center (Tuple[int | float, int | float]): center of an object
         speed (int | float): speed of object
-        point (List[Tuple[int | float, int | float]]): point of object that can draw in polygon
+        point (List[Tuple[int | float, int | float]]): point of object that 
+                                                       can draw in polygon
         is_alive (bool): check this object still alive
 
     Medthods:
@@ -114,7 +115,8 @@ class BaseAirplane:
         Returns:
             Points (Tuple[float, float, float, float]): Bounding Box of an Object 
                                                         using for colliding detection
-                                                        it contains min_x, max_x, min_y, max_y
+                                                        it contains min_x, max_x, 
+                                                        min_y, max_y
                                                         respectively
         """
         points = self.get_points()
@@ -261,7 +263,8 @@ class Airplane(BaseAirplane):
 
 
 class Missile(BaseAirplane):
-    """ Missile inherit from BaseAirplane use for object that has target to Airplane 
+    """ Missile inherit from BaseAirplane use for 
+    object that has target to Airplane 
 
     Attributes:
         size (int): size of this object
