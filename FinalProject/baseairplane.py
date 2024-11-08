@@ -7,7 +7,26 @@ import math
 
 
 class BaseAirplane:
-    """ Base Class for Airplane and Missiles """
+    """Base Class for Airplane and Missiles 
+
+    Attributes:
+        size (int): size of an object
+        center (Tuple[int | float, int | float]): center of an object
+        speed (int | float): speed of object
+        point (List[Tuple[int | float, int | float]]): point of object that can draw in polygon
+        is_alive (bool): check this object still alive
+
+    Medthods:
+        rotation_points(): rotate all point
+        bouncing_box(): create box for cheking collding
+        is_colliding(): check this object is collding with other object or not
+        set_is_alive(): set is_alive attribute
+        get_point(): get point of this object use for draw polygon
+        get_vector(): calculate and return vector use for calculate
+        get_center(): get center of this object
+        get_speed(): get speed of this object
+        get_alive(): get that object this still alive 
+    """
 
     def __init__(self,
                  size: int,
@@ -188,7 +207,16 @@ class BaseAirplane:
 
 
 class Airplane(BaseAirplane):
-    """ Class Airplane inherit from BaseAirplane use of main player character """
+    """Class Airplane inherit from BaseAirplane use of main player character
+
+    Attributes:
+        size (int): size of this object
+        center (Tuple[int | float, int | float]): center of this object
+        speed (int | float): speed of this object
+
+    Medthods:
+        move_forward(): move all point of this object forward by speed
+    """
 
     def __init__(self,
                  size: int,
@@ -233,15 +261,31 @@ class Airplane(BaseAirplane):
 
 
 class Missile(BaseAirplane):
-    """ Missile inherit from BaseAirplane use for object that has target to Airplane """
+    """ Missile inherit from BaseAirplane use for object that has target to Airplane 
+
+    Attributes:
+        size (int): size of this object
+        center (Tuple[int | float, int | float]): center of this object
+        speed (int | float): speed of this object
+        max_turn_rate (int | float): max_turn_rate in degrees per second
+        acceleration (int | float): acceleration by dt
+        max_speed (int | float): max_speed that missile can reach
+
+    Medthods:
+        update(): update all point and speed by dt
+        rotation_to_target(): rotate missile to target
+        get_acceleration(): get acceleration of this object
+        get_max_speed(): get max_speed of this object
+        get_max_turn_rate(): get max_turn_rate of this object 
+    """
 
     def __init__(self,
                  size: int,
                  center: Tuple[float, float],
                  speed: int | float,
                  max_turn_rate: int | float,
-                 acceleration: int | float = 0.01,
-                 max_speed: int | float = 0.3) -> None:
+                 acceleration: int | float,
+                 max_speed: int | float) -> None:
 
         assert isinstance(acceleration, (int, float)), \
             f"acceleration should be int or float, but got {

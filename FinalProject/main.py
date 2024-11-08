@@ -66,6 +66,24 @@ class Game:
     SCREEN_HEIGHT = 600
     DISPLAY_SIZE = (SCREEN_WIDTH, SCREEN_HEIGHT)
 
+    # Constant for Airplane
+    AIRPLANE_SIZE = 8
+    AIRPLANE_SPEED = 6
+    AIRPLANE_ROTATION_ANGLE = 7  # degrees per second
+    AIRPLANE_EFFECT_TIME = 3
+
+    # Constant for Missile
+    MISSILE_SIZE = 5
+    MISSILE_SPEED = 5
+    MISSILE_ACCELERATION = 0.2
+    MISSILE_MAX_SPEED = 6.5
+    MISSLIE_MAX_TURN_RATE = 3.5  # degrees per second
+
+    # Constant for Coin
+    COIN_SPAWN_TIME = 4
+    COIN_SCORE = 5
+    COIN_RADIUS = 15
+
     # Missile generation constant
     MISSILE_SPAWN_TIME = 4  # Seconds between spawns
     MAX_MISSILES = 4
@@ -79,24 +97,6 @@ class Game:
         (0, SCREEN_HEIGHT/2),
         (SCREEN_WIDTH, SCREEN_HEIGHT/2)
     ]
-
-    # Constant for Airplane
-    AIRPLANE_SIZE = 8
-    AIRPLANE_SPEED = 6
-    AIRPLANE_ROTATION_ANGLE = 7  # degrees
-    AIRPLANE_EFFECT_TIME = 3
-
-    # Constant for Missile
-    MISSILE_SIZE = 5
-    MISSILE_SPEED = 5
-    MISSILE_ACCELERATION = 0.2
-    MISSILE_MAX_SPEED = 6.5
-    MISSLIE_MAX_TURN_RATE = 3.5  # degrees
-
-    # Constant for Coin
-    COIN_SPAWN_TIME = 4
-    COIN_SCORE = 5
-    COIN_RADIUS = 15
 
     def __init__(self) -> None:
         # Game setup
@@ -432,7 +432,7 @@ class Game:
         weight = [0.6, 0.3, 0.1]
 
         if current_time - self.last_spawn_coin >= self.COIN_SPAWN_TIME:
-            
+
             spawn_area = (
                 (50, 50),
                 (self.SCREEN_WIDTH - 50, self.SCREEN_HEIGHT - 50)
